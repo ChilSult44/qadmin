@@ -21,20 +21,20 @@ module Qadmin
       general_link_attributes = {:controller => controller}.merge(parent_link_attributes)
 
       control_links = {
-        :index      => link_to(image_tag('admin/icon_list.png') + " Back to List", general_link_attributes.merge(:action => 'index')),
-        :new        => link_to(image_tag('admin/icon_new.png') + " New", general_link_attributes.merge(:action => 'new')),
-        :edit       => link_to(image_tag('admin/icon_edit.png') + " Edit", general_link_attributes.merge(:action => 'edit', :id => obj)),
-        :show       => link_to(image_tag('admin/icon_show.png') + " View", general_link_attributes.merge(:action => 'show', :id => obj)),
-        :destroy    => link_to(image_tag('admin/icon_destroy.png') + " Delete", general_link_attributes.merge(:action => 'destroy', :id => obj), :confirm => 'Are you sure?', :method => :delete),
-        :ports      => link_to(image_tag('admin/icon_export.png') + " Import/Export", general_link_attributes.merge(:action => 'ports')),
-        :export      => link_to(image_tag('admin/icon_export.png') + " Export", general_link_attributes.merge(:action => 'export'))
+        :index      => link_to(image_tag('admin/icon_list.png')    + " Back to List",  general_link_attributes.merge(:action => 'index')),
+        :new        => link_to(image_tag('admin/icon_new.png')     + " New",           general_link_attributes.merge(:action => 'new')),
+        :edit       => link_to(image_tag('admin/icon_edit.png')    + " Edit",          general_link_attributes.merge(:action => 'edit',    :id => obj)),
+        :show       => link_to(image_tag('admin/icon_show.png')    + " View",          general_link_attributes.merge(:action => 'show',    :id => obj)),
+        :destroy    => link_to(image_tag('admin/icon_destroy.png') + " Delete",        general_link_attributes.merge(:action => 'destroy', :id => obj), :confirm => 'Are you sure?', :method => :delete),
+        :ports      => link_to(image_tag('admin/icon_export.png')  + " Import/Export", general_link_attributes.merge(:action => 'ports')),
+        :export     => link_to(image_tag('admin/icon_export.png')  + " Export",        general_link_attributes.merge(:action => 'export'))
       }
 
       control_sets = {
-        :index => [:new],
-        :new   => [:index],
-        :edit  => [:index,:new,:show,:destroy],
-        :show  => [:index,:new,:edit,:destroy]
+        :index => [ :new ],
+        :new   => [ :index ],
+        :edit  => [ :index, :new, :show, :destroy ],
+        :show  => [ :index, :new, :edit, :destroy ]
       }
       
       control_set = options[:controls] || []
@@ -78,6 +78,7 @@ module Qadmin
       html = '<table>'
       html <<	'<tr>'
       attributes = options[:attributes] || self.qadmin_configuration.display_columns
+      disabled = options[:disabled] || []
       model_column_types = SuperHash.new
       attributes.each do |attribute_name|
         column = self.qadmin_configuration.model_klass.columns.detect {|c| c.name == attribute_name.to_s }
@@ -88,12 +89,13 @@ module Qadmin
         html << sortable_column_header(attribute)
         html << '</th>'
       end
-      html << %{
-        <th>View</th>
-        <th>Edit</th>
-        <th>Delete</th>
-        </tr>
-      }
+
+      html << '<th>View</th>'   if !disabled.include?(:show)
+      html << '<th>Edit</th>'   if !disabled.include?(:edit)
+      html << '<th>Delete</th>' if !disabled.include?(:delete)
+
+      html << '</tr>'
+      
       collection.each do |instance|
         html << %{<tr id="#{dom_id(instance)}" #{alt_rows}>}
         attributes.each_with_index do |attribute, i|
@@ -112,9 +114,9 @@ module Qadmin
             html << %{<td>#{value}</td>}
           end
         end
-        html << %{<td>#{link_to(image_tag('admin/icon_show.png'), send("#{model_instance_name}_path", instance))}</td>}
-        html << %{<td>#{link_to(image_tag('admin/icon_edit.png'), send("edit_#{model_instance_name}_path", instance))}</td>}
-        html << %{<td>#{link_to(image_tag('admin/icon_destroy.png'), send("#{model_instance_name}_path", instance), :confirm => 'Are you sure?', :method => :delete)}</td>}
+        html << %{<td>#{link_to(image_tag('admin/icon_show.png'), send("#{model_instance_name}_path", instance))}</td>} if !disabled.include?(:show)
+        html << %{<td>#{link_to(image_tag('admin/icon_edit.png'), send("edit_#{model_instance_name}_path", instance))}</td>} if !disabled.include?(:edit)
+        html << %{<td>#{link_to(image_tag('admin/icon_destroy.png'), send("#{model_instance_name}_path", instance), :confirm => 'Are you sure?', :method => :delete)}</td>} if !disabled.include?(:delete)
         html << '</tr>'
       end
       html << '</table>'
