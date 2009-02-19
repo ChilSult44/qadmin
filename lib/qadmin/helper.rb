@@ -36,9 +36,12 @@ module Qadmin
         :edit  => [ :index, :new, :show, :destroy ],
         :show  => [ :index, :new, :edit, :destroy ]
       }
-      
-      control_set = options[:controls] || []
-      control_set.unshift(control_sets[options[:for]]) if options[:for]
+            
+            
+      # Need to clone options[:controls] because we mod control_set and ruby only passes by reference.
+      # (Otherwise we can get duplicate entries if we call this more than once on a page.)
+      control_set = (options[:controls] ? options[:controls].clone : nil) || []
+      control_set.unshift(control_sets[options[:for]]) if options[:for]    
       control_set << :ports if options[:ports]
       controls = Array(control_set).flatten.collect {|c| control_links[c] }.compact
 
