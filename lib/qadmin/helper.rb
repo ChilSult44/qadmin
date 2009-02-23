@@ -78,7 +78,7 @@ module Qadmin
     end
         
     def admin_table(collection, options = {})
-      html = '<table>'
+      html = "<table #{options[:id] ? 'id = "' + options[:id] + '"' : ''}>"
       html <<	'<tr>'
       attributes = options[:attributes] || self.qadmin_configuration.display_columns
       disabled = options[:disabled] || []
@@ -87,6 +87,9 @@ module Qadmin
         column = self.qadmin_configuration.model_klass.columns.detect {|c| c.name == attribute_name.to_s }
         model_column_types[attribute_name] = column.type if column
       end
+      
+      html << '<th></th>' if options[:include_sort_handle]
+      
       attributes.each_with_index do |attribute, i|
         html << (i == 0 ? '<th class="first_col">' : '<th>')
         html << sortable_column_header(attribute)
@@ -99,8 +102,12 @@ module Qadmin
 
       html << '</tr>'
       
+      html << %{<tbody id = "#{model_instance_name.pluralize}">}
       collection.each do |instance|
         html << %{<tr id="#{dom_id(instance)}" #{alt_rows}>}
+        
+        html << %{<td><span class="sort_handle">DRAG</span></td>} if options[:include_sort_handle]
+        
         attributes.each_with_index do |attribute, i|
           raw_value = instance.send(attribute)
           value = case model_column_types[attribute]
@@ -122,6 +129,7 @@ module Qadmin
         html << %{<td>#{link_to(image_tag('admin/icon_destroy.png'), send("#{model_instance_name}_path", instance), :confirm => 'Are you sure?', :method => :delete)}</td>} if !disabled.include?(:delete)
         html << '</tr>'
       end
+      html << '</tbody>'
       html << '</table>'
     end
 
