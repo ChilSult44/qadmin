@@ -40,12 +40,13 @@ module Qadmin
       options[:section_name] ? options[:section_name] : (@section ? @section.name : controller_name)
     end
     
-    def template_exists?(template_path)
-      logger.info "Checking for template: #{template_path} in #{self.view_paths.inspect}"
-      ActionView::Template.new("#{template_path}.erb", self.view_paths)
-    rescue ActionView::MissingTemplate => e
-      logger.info "Template not found: #{template_path}, #{e}"
-      false
+    def template_exists?(template_name)
+      begin
+        self.view_paths.find_template(template_name, self.send(:default_template_format))
+        true
+      rescue ActionView::MissingTemplate
+        false
+      end
     end
 
   end
