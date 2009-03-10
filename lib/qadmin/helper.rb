@@ -126,7 +126,19 @@ module Qadmin
         end
         html << %{<td>#{link_to(image_tag('admin/icon_show.png'), send("#{model_instance_name}_path", instance))}</td>} if !disabled.include?(:show)
         html << %{<td>#{link_to(image_tag('admin/icon_edit.png'), send("edit_#{model_instance_name}_path", instance))}</td>} if !disabled.include?(:edit)
-        html << %{<td>#{link_to(image_tag('admin/icon_destroy.png'), send("#{model_instance_name}_path", instance), :confirm => 'Are you sure?', :method => :delete)}</td>} if !disabled.include?(:delete)
+        if !disabled.include?(:delete)
+          if instance.public_methods.include?('can_delete?') && !instance.can_delete?
+            delete_link = 'In Use'
+          else
+            delete_link = link_to(
+              image_tag('admin/icon_destroy.png'),
+              send("#{model_instance_name}_path", instance),
+              :confirm => 'Are you sure?',
+              :method => :delete
+            )
+          end
+          html << %{<td>#{delete_link}</td>}
+        end
         html << '</tr>'
       end
       html << '</tbody>'
