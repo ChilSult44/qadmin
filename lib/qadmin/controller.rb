@@ -57,7 +57,19 @@ module Qadmin
           :create => %{
             def create
               logger.info 'Qadmin: Default /create'
-              @model_instance = @#{config.model_instance_name} = #{config.model_name}.new(params[:#{config.model_instance_name}])
+              param_key = :#{config.model_instance_name}
+              params.keys.each do |key|
+                begin
+                  if key.to_s.classify.constantize.ancestors.include?('#{config.model_instance_name}'.classify.constantize)
+                    param_key = key
+                    break
+                  end
+                rescue NameError
+                end
+              end
+              p = params[param_key]
+              logger.debug "Qadmin: Create with params \#{p.inspect}"
+              @model_instance = @#{config.model_instance_name} = #{config.model_sti_type_column ? "p[:#{config.model_sti_type_column.to_s}].constantize" : config.model_name}.new(p)
               respond_to do |format|
                 if @#{config.model_instance_name}.save
                   flash[:message] = '#{config.model_human_name} was successfully created.'
@@ -83,10 +95,22 @@ module Qadmin
           :update => %{
             def update
               logger.info 'Qadmin: Default /update'
+              param_key = :#{config.model_instance_name}
+              params.keys.each do |key|
+                begin
+                  if key.to_s.classify.constantize.ancestors.include?('#{config.model_instance_name}'.classify.constantize)
+                    param_key = key
+                    break
+                  end
+                rescue NameError
+                end
+              end
+              p = params[param_key]
+              logger.debug "Qadmin: Create with params \#{p.inspect}"
               @model_instance = @#{config.model_instance_name} = #{config.model_name}.find(params[:id])
 
               respond_to do |format|
-                if @#{config.model_instance_name}.update_attributes(params[:#{config.model_instance_name}])
+                if @#{config.model_instance_name}.update_attributes(p)
                   flash[:message] = '#{config.model_human_name} was successfully updated.'
                   format.html { redirect_to(#{config.model_instance_name}_path(@#{config.model_instance_name})) }
                   format.xml  { head :ok }
@@ -124,7 +148,12 @@ module Qadmin
             respond_to do |format|
               format.js {
                 render :update do |page|
-                  page.insert_html :bottom, @origin_div, :partial => "content_forms/\#{obj}_form", :locals => {obj => nil, :index => @num, :content_type => @content_type}
+                  page.insert_html(
+                    :bottom,
+                    @origin_div,
+                    :partial => "content_forms/\#{obj}_form",
+                    :locals => {obj => nil, :index => @num, :content_type => @content_type}
+                  )
                 end
               }
             end

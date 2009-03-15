@@ -119,7 +119,11 @@ module Qadmin
             h(raw_value)
           end
           if i == 0
-            html << %{<td class="first_col">#{link_to(value, send("#{model_instance_name}_path", instance))}</td>}
+            if !disabled.include?(:show)
+              html << %{<td class="first_col">#{link_to(value, send("#{model_instance_name}_path", instance))}</td>}
+            else
+              html << %{<td class="first_col">#{value}</td>}
+            end
           else
             html << %{<td>#{value}</td>}
           end

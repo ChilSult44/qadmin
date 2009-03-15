@@ -5,7 +5,8 @@ module Qadmin
                   :model_name, 
                   :model_instance_name, 
                   :model_collection_name, 
-                  :model_human_name, 
+                  :model_human_name,
+                  :model_sti_type_column, 
                   :available_actions, 
                   :display_columns,
                   :column_headers,
@@ -16,13 +17,14 @@ module Qadmin
     
     def initialize(options = {})
       extract_model_from_options(options)
-      self.available_actions = Qadmin::OptionSet.new([:index, :show, :new, :create, :edit, :update, :destroy], options[:available_actions] || {})
-      self.display_columns   = Qadmin::OptionSet.new(model_column_names, options[:display_columns] || {})
-      self.multipart_forms   = options[:multipart_forms] || false
-      self.default_scope     = options[:default_scope]   || false
-      self.ports             = options[:ports]           || false
-      self.controls          = options[:controls]        || []
-      self.column_headers    = HashWithIndifferentAccess.new(options[:column_headers] || {})
+      self.available_actions     = Qadmin::OptionSet.new([:index, :show, :new, :create, :edit, :update, :destroy], options[:available_actions] || {})
+      self.display_columns       = Qadmin::OptionSet.new(model_column_names, options[:display_columns] || {})
+      self.multipart_forms       = options[:multipart_forms] || false
+      self.default_scope         = options[:default_scope]   || false
+      self.ports                 = options[:ports]           || false
+      self.controls              = options[:controls]        || []
+      self.column_headers        = HashWithIndifferentAccess.new(options[:column_headers] || {})
+      self.model_sti_type_column = options[:model_sti_type_column] || nil
     end
     
     def model_klass
