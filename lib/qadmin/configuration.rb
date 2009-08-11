@@ -10,6 +10,7 @@ module Qadmin
                   :available_actions, 
                   :display_columns,
                   :column_headers,
+                  :column_sort_overrides,
                   :multipart_forms,
                   :default_scope,
                   :ports,
@@ -24,6 +25,7 @@ module Qadmin
       self.ports                 = options[:ports]           || false
       self.controls              = options[:controls]        || []
       self.column_headers        = HashWithIndifferentAccess.new(options[:column_headers] || {})
+      self.column_sort_overrides = HashWithIndifferentAccess.new(options[:column_sort_overrides] || {})
       self.model_sti_type_column = options[:model_sti_type_column] || nil
     end
     

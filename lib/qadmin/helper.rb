@@ -37,7 +37,6 @@ module Qadmin
         :show  => [ :index, :new, :edit, :destroy ]
       }
             
-            
       # Need to clone options[:controls] because we mod control_set and ruby only passes by reference.
       # (Otherwise we can get duplicate entries if we call this more than once on a page.)
       control_set = (options[:controls] ? options[:controls].clone : nil) || []
@@ -59,16 +58,27 @@ module Qadmin
     end
     
     def sortable_column_header(attribute_name, text = nil, options = {})
-      link_text = text || self.qadmin_configuration.column_headers[attribute_name] || attribute_name.to_s.humanize
+      if text
+        link_text = text
+      elsif self.qadmin_configuration.column_headers[attribute_name]
+        # THIS MUST BE CLONED, OR THE asc/desc IMAGES WILL DUPLICATE IN PRODUCTION MODE
+        link_text = self.qadmin_configuration.column_headers[attribute_name].clone
+      else
+        link_text = attribute_name.to_s.humanize
+      end
       return link_text unless qadmin_configuration.model_klass.can_query?
       query_parser = model_restful_query_parser(options)
       query_param = options[:query_param] || :query
-      logger.warn 'params:' +  self.params[query_param].inspect
-      logger.warn 'parser:' + query_parser.inspect
+       logger.warn 'params:' +  self.params[query_param].inspect
+       logger.warn 'parser:' + query_parser.inspect
       sorting_this = query_parser.sort(attribute_name)
-      logger.warn "sorting #{attribute_name}:" + sorting_this.inspect
+       logger.warn "sorting #{attribute_name}:" + sorting_this.inspect
       link_text << " #{image_tag("admin/icon_#{sorting_this.direction.downcase}.gif")}" if sorting_this
-      query_parser.set_sort(attribute_name, sorting_this ? sorting_this.next_direction : 'desc')
+      self.qadmin_configuration.column_sort_overrides
+      sort_override = self.qadmin_configuration.column_sort_overrides[attribute_name]
+      sort_attr_name = sort_override ? sort_override : attribute_name
+      query_parser.set_sort(sort_attr_name, sorting_this ? sorting_this.next_direction : 'desc')
+
       link_to link_text, self.params.dup.merge(query_param => query_parser.to_query_hash), :class => 'sortable_column_header'
     end
     
