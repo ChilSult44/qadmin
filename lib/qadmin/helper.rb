@@ -69,10 +69,7 @@ module Qadmin
       return link_text unless qadmin_configuration.model_klass.can_query?
       query_parser = model_restful_query_parser(options)
       query_param = options[:query_param] || :query
-       logger.warn 'params:' +  self.params[query_param].inspect
-       logger.warn 'parser:' + query_parser.inspect
       sorting_this = query_parser.sort(attribute_name)
-       logger.warn "sorting #{attribute_name}:" + sorting_this.inspect
       link_text << " #{image_tag("admin/icon_#{sorting_this.direction.downcase}.gif")}" if sorting_this
       self.qadmin_configuration.column_sort_overrides
       sort_override = self.qadmin_configuration.column_sort_overrides[attribute_name]
