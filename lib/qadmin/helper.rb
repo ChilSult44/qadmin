@@ -143,7 +143,7 @@ module Qadmin
           else
             delete_link = link_to(
               image_tag('admin/icon_destroy.png'),
-              :action => 'destroy', :id => instance.id,
+              {:action => 'destroy', :id => instance.id},
               :confirm => 'Are you sure?',
               :method => :delete
             )
