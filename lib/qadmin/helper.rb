@@ -121,13 +121,13 @@ module Qadmin
           when :boolean
             yes?(raw_value)
           when :text
-            truncate_words(raw_value, 10, ". . . #{link_to('More', send("#{model_instance_name}_path", instance))}")
+            truncate_words(raw_value, 10, ". . . #{link_to('More', :action => 'show', :id => instance.id)}")
           else
             h(raw_value)
           end
           if i == 0
             if !disabled.include?(:show)
-              html << %{<td class="first_col">#{link_to(value, send("#{model_instance_name}_path", instance))}</td>}
+              html << %{<td class="first_col">#{link_to(value, :action => 'show', :id => instance.id)}</td>}
             else
               html << %{<td class="first_col">#{value}</td>}
             end
@@ -135,15 +135,15 @@ module Qadmin
             html << %{<td>#{value}</td>}
           end
         end
-        html << %{<td>#{link_to(image_tag('admin/icon_show.png'), send("#{model_instance_name}_path", instance))}</td>} if !disabled.include?(:show)
-        html << %{<td>#{link_to(image_tag('admin/icon_edit.png'), send("edit_#{model_instance_name}_path", instance))}</td>} if !disabled.include?(:edit)
+        html << %{<td>#{link_to(image_tag('admin/icon_show.png'), :action => 'show', :id => instance.id)}</td>} if !disabled.include?(:show)
+        html << %{<td>#{link_to(image_tag('admin/icon_edit.png'), :action => 'edit', :id => instance.id)}</td>} if !disabled.include?(:edit)
         if !disabled.include?(:delete)
           if instance.public_methods.include?('can_delete?') && !instance.can_delete?
             delete_link = 'In Use'
           else
             delete_link = link_to(
               image_tag('admin/icon_destroy.png'),
-              send("#{model_instance_name}_path", instance),
+              :action => 'destroy', :id => instance.id,
               :confirm => 'Are you sure?',
               :method => :delete
             )
