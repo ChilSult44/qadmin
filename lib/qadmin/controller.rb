@@ -112,7 +112,7 @@ module Qadmin
               respond_to do |format|
                 if @#{config.model_instance_name}.update_attributes(p)
                   flash[:message] = '#{config.model_human_name} was successfully updated.'
-                  format.html { redirect_to(#{config.model_instance_name}_path(@#{config.model_instance_name})) }
+                  format.html { redirect_to(:action => 'index') }
                   format.xml  { head :ok }
                 else
                   format.html { render_template_for_section("edit") }
@@ -128,7 +128,7 @@ module Qadmin
               @#{config.model_instance_name}.destroy
               flash[:message] = "#{config.model_human_name} \#{@#{config.model_instance_name}} was deleted"
               respond_to do |format|
-                format.html { redirect_to(#{config.model_collection_name}_path) }
+                format.html { redirect_to(:action => 'index') }
                 format.xml  { head :ok }
               end
             end
