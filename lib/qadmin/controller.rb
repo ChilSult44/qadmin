@@ -73,7 +73,7 @@ module Qadmin
               respond_to do |format|
                 if @#{config.model_instance_name}.save
                   flash[:message] = '#{config.model_human_name} was successfully created.'
-                  format.html { redirect_to(#{config.model_instance_name}_path(@#{config.model_instance_name})) }
+                  format.html { redirect_to(:action => 'index') }
                   format.xml  { render :xml => @#{config.model_instance_name}, :status => :created, :location => @#{config.model_instance_name} }
                 else
                   format.html { render_template_for_section('new') }

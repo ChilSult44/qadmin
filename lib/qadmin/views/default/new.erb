@@ -4,7 +4,7 @@
 
 <%= error_messages_for model_instance_name %>
 
-<% form_for(@model_instance, :html => {:multipart => true}) do |f| %>
+<% form_for(@model_instance, :url => { :action => :create }, :html => {:multipart => true, :method => :post }, :html => {:multipart => true}) do |f| %>
   <%= render :partial => 'form', :locals => {:f => f, model_instance_name.to_sym => @model_instance} %>
   <p><%= f.submit "Create" %></p>
 <% end %>
