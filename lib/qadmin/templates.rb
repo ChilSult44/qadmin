@@ -9,7 +9,15 @@ module Qadmin
       end
     end
 
-    protected        
+    protected
+    def namespace_name
+      parts = self.class.to_s.split('::')
+      if parts.size > 1
+        return parts[0].downcase
+      end
+      return nil
+    end
+    
     def render_template_for_section(action = nil, options = {})
       action ||= action_name
       render({:template => template_for_section(action)}.merge(options))
@@ -37,7 +45,8 @@ module Qadmin
     end
 
     def current_section_name(options = {})
-      options[:section_name] ? options[:section_name] : (@section ? @section.name : controller_name)
+      tempname = [ namespace_name, controller_name ].compact.join('/')
+      options[:section_name] ? options[:section_name] : (@section ? @section.name : tempname)
     end
     
     def template_exists?(template_name)
